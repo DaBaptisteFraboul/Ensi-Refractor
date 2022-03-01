@@ -1,4 +1,5 @@
-
+import os
+import shutil
 
 
 def print_file(file):
@@ -24,3 +25,20 @@ def edit_file(file):
         '''
         replace_element_in_content(file)
         file.close()
+
+def is_directory(path):
+    if path.find('.') == -1 :
+        return False
+    else :
+        return True
+
+def not_on_C_disk(path):
+    '''
+    Safeguard to prevent modification on file system, people shouldn't work on disk system
+    (assuming C:/ is system disk)
+    '''
+    if path.find('C:/') == -1 :
+        return True
+    else :
+        return False
+
