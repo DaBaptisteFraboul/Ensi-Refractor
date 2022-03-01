@@ -1,6 +1,7 @@
 import PyQt5
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import sys
+import edit_lib
 
 def window():
     app = QApplication(sys.argv)
