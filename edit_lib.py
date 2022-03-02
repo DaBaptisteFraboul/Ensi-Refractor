@@ -10,28 +10,39 @@ def print_file(file):
     print(lines)
     f.close()
 
-def replace_element_in_content( content , oldpath, newpath) :
+"""
+
+
+"""
+def replace_element_in_content( content , oldpath, newpath):
     file_lines = content.readlines()
     print(len(file_lines))
     for line in file_lines :
-        line = line.replace(oldpath, newpath)
-        print(line)
+        if line.find(oldpath) != -1 :
+            line = line.replace(oldpath, newpath)
 
-def edit_file(file, oldpath, newpath):
+    print(file_lines)
+    return file_lines
 
-    with open(file, 'r+') as file :
-        # edit file here
-        '''
-        Replace element with another
-        '''
-        replace_element_in_content(file, oldpath, newpath)
-    file.close()
+def edit_file(file_path, oldpath, newpath):
+    change = []
+    with open(file_path, 'r+') as f :
+        file_lines = f.readlines()
+        print(len(file_lines))
+        for line in file_lines:
+            if line.find(oldpath) != -1:
+                line = line.replace(oldpath, newpath)
+            change.append(line)
+    f.close()
+    with open(file_path, 'w+') as f2 :
+        f2.writelines(change)
 
 def is_directory(path):
     if path.find('.') == -1 :
         return False
     else :
         return True
+
 
 def not_on_C_disk(path):
     '''
@@ -43,11 +54,13 @@ def not_on_C_disk(path):
     else :
         return False
 
+
 def is_gproject(path):
     if path.find('.gproject') != -1 :
         return True
     else :
         return False
+
 
 def Do_backup(refracted_dir):
     backup_path = refracted_dir + '/Refractor_Backup'
@@ -64,6 +77,7 @@ def edit_gproject_in_dir(dir, oldpath, newpath) :
     print("edit_project_in_dir")
 
     if os.path.exists(dir) :
+
         for path, subdirs, files in os.walk(dir) :
             for name in files:
                 checkfile = pathlib.PurePath(path, name)
@@ -74,15 +88,14 @@ def edit_gproject_in_dir(dir, oldpath, newpath) :
                         edit_file(checkfile, oldpath, newpath)
                         print_file(checkfile)
 
+
 def edit_gproject_standalone(file_path, oldpath, newpath) :
 
     print("edit standalone file")
-
     if os.path.exists(file_path) :
         edit_file(file_path, oldpath, newpath)
     print_file(file_path)
 
-edit_file('D:/Users/b.fraboul/Desktop/Mon_crash_test/plan_080.gproject', 'set' , 'PROUTE')
 
 
 class Modification:

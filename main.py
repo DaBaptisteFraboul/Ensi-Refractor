@@ -114,6 +114,11 @@ class Window(QMainWindow):
             backup = True
         else :
             backup = False
+        if self.File_input.text().find('.gproject') != -1 :
+            refract_folder = False
+        else :
+            refract_folder = True
+
         file_path = self.File_input.text()
         old = self.OldPathInput.text()
         new = self.NewPathInput.text()
@@ -123,23 +128,23 @@ class Window(QMainWindow):
             print(backup)
             if backup :
                 print("Backup")
-                if self.File_input.text().find('.gproject') == -1 :
+                if refract_folder :
                     print("Backup under folder")
                     edit_lib.Do_backup(self.File_input.text())
-                    edit_lib.edit_gproject_in_dir(file_path, self.modif_log, old, new)
+                    edit_lib.edit_gproject_in_dir(file_path, old, new)
                 else :
                     print('backup log directly under file')
                     edit_lib.Do_backup(os.path.dirname(self.File_input.text()))
-                    edit_lib.edit_gproject_standalone(file_path,self.modif_log, old, new)
+                    edit_lib.edit_gproject_standalone(file_path, old, new)
             elif backup == False :
                 print(self.File_input.text().find('.gproject') != -1)
-                if self.File_input.text().find('.gproject') == -1 :
+                if refract_folder :
                     "edit project in dir without backup"
-                    edit_lib.edit_gproject_in_dir(file_path, self.modif_log, old, new)
+                    edit_lib.edit_gproject_in_dir(file_path, old, new)
 
                 else :
                     "edit standalone project wihtout backup"
-                    edit_lib.edit_gproject_standalone(file_path, self.modif_log, old, new)
+                    edit_lib.edit_gproject_standalone(file_path, old, new)
 
         else:
             print('Warning I dont Run On C:/ Disk')
