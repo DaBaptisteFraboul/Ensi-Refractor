@@ -1,4 +1,5 @@
 import os
+import pathlib
 import shutil
 
 
@@ -9,22 +10,22 @@ def print_file(file):
     print(lines)
     f.close()
 
-def replace_element_in_content( content) :
+def replace_element_in_content( content , oldpath, newpath) :
     file_lines = content.readlines()
     print(len(file_lines))
     for line in file_lines :
-        line = line.replace('set', 'prout')
+        line = line.replace(oldpath, newpath)
         print(line)
 
-def edit_file(file):
+def edit_file(file, oldpath, newpath):
 
     with open(file, 'r+') as file :
         # edit file here
         '''
         Replace element with another
         '''
-        replace_element_in_content(file)
-        file.close()
+        replace_element_in_content(file, oldpath, newpath)
+    file.close()
 
 def is_directory(path):
     if path.find('.') == -1 :
@@ -37,13 +38,13 @@ def not_on_C_disk(path):
     Safeguard to prevent modification on file system, people shouldn't work on disk system
     (assuming C:/ is system disk)
     '''
-    if path.find('C:/') == -1 :
+    if path.find('C:') == -1 :
         return True
     else :
         return False
 
 def is_gproject(path):
-    if path.find('gproject') != -1 :
+    if path.find('.gproject') != -1 :
         return True
     else :
         return False
@@ -52,9 +53,46 @@ def Do_backup(refracted_dir):
     backup_path = refracted_dir + '/Refractor_Backup'
     if os.path.exists(backup_path) :
         shutil.rmtree(backup_path)
-    os.mkdir(backup_path)
+    shutil.copytree(refracted_dir,backup_path)
 
-    
 
-test_path = r'D:\Users\b.fraboul\Desktop\Mon_crash_test'
-Do_backup(test_path)
+def edit_gproject_in_dir(dir, oldpath, newpath) :
+    '''
+    Use for directory refracting
+    '''
+
+    print("edit_project_in_dir")
+
+    if os.path.exists(dir) :
+        for path, subdirs, files in os.walk(dir) :
+            for name in files:
+                checkfile = pathlib.PurePath(path, name)
+                if str(checkfile).find('Refractor_Backup') != -1:
+                    pass
+                else :
+                    if checkfile.suffix == '.gproject' :
+                        edit_file(checkfile, oldpath, newpath)
+                        print_file(checkfile)
+
+def edit_gproject_standalone(file_path, oldpath, newpath) :
+
+    print("edit standalone file")
+
+    if os.path.exists(file_path) :
+        edit_file(file_path, oldpath, newpath)
+    print_file(file_path)
+
+edit_file('D:/Users/b.fraboul/Desktop/Mon_crash_test/plan_080.gproject', 'set' , 'PROUTE')
+
+
+class Modification:
+    def __init__(self, Directory, OldPath, NewPath):
+        self.Directory = Directory
+        self.OldPath = OldPath
+        self.NewPath = NewPath
+
+    def get_modification_infos(self):
+        return self.Directory, self.OldPath, self.NewPath
+
+    def add_to_log(self, log):
+        log.append((self.Directory, self.OldPath, self.NewPath))
