@@ -42,3 +42,19 @@ def not_on_C_disk(path):
     else :
         return False
 
+def is_gproject(path):
+    if path.find('gproject') != -1 :
+        return True
+    else :
+        return False
+
+def Do_backup(refracted_dir):
+    backup_path = refracted_dir + '/Refractor_Backup'
+    if os.path.exists(backup_path) :
+        shutil.rmtree(backup_path)
+    os.mkdir(backup_path)
+
+    
+
+test_path = r'D:\Users\b.fraboul\Desktop\Mon_crash_test'
+Do_backup(test_path)
