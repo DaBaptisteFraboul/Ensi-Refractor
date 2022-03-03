@@ -1,3 +1,5 @@
+import shutil
+
 import PyQt5
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import PyQt5.QtGui, PyQt5.QtCore
@@ -105,50 +107,33 @@ class Window(QMainWindow):
         self.NewPathButton.clicked.connect(lambda : self.file_input_browse_clicked(self.NewPathInput))
         self.RefractButton.clicked.connect(self.Do_refraction)
 
-    def Do_refraction(self):
-        '''
-        Refraction when Refract button pushed
-        :return:
-        '''
-        if self.CheckMark.checkState() :
-            backup = True
-        else :
-            backup = False
-        if self.File_input.text().find('.gproject') != -1 :
-            refract_folder = False
-        else :
-            refract_folder = True
+    def Do_refraction(self) :
+        if self.File_input.text().find('.gproject') != -1:
+            is_folder = False
+        else:
+            is_folder_ = True
 
         file_path = self.File_input.text()
-        old = self.OldPathInput.text()
-        new = self.NewPathInput.text()
-        if edit_lib.not_on_C_disk(file_path) :
-            print("NOT ON C")
-            print(self.CheckMark.checkState())
-            print(backup)
-            if backup :
-                print("Backup")
-                if refract_folder :
-                    print("Backup under folder")
-                    edit_lib.Do_backup(self.File_input.text())
-                    edit_lib.edit_gproject_in_dir(file_path, old, new)
-                else :
-                    print('backup log directly under file')
-                    edit_lib.Do_backup(os.path.dirname(self.File_input.text()))
-                    edit_lib.edit_gproject_standalone(file_path, old, new)
-            elif backup == False :
-                print(self.File_input.text().find('.gproject') != -1)
-                if refract_folder :
-                    "edit project in dir without backup"
-                    edit_lib.edit_gproject_in_dir(file_path, old, new)
+        old_path = self.OldPathInput.text()
+        new_path = self.NewPathInput.text()
 
-                else :
-                    "edit standalone project wihtout backup"
-                    edit_lib.edit_gproject_standalone(file_path, old, new)
+        new_content = edit_lib.read_file(file_path,old_path,new_path)
+        backup_path = edit_lib.do_backup_file(file_path)
+        no_problem = edit_lib.write_new_file(file_path, new_content)
 
-        else:
-            print('Warning I dont Run On C:/ Disk')
-            return
+        if no_problem :
+            # prompt 'Do you want to keep backupfile'
+            user_answer = True
+            if user_answer :
+                return
+            else :
+                shutil.rmtree(backup_path)
+        else :
+            print('Something went wrong')
+            shutil.copy(backup_path, file_path)
+
+
+
 
 
     def file_input_browse_clicked(self, input):
@@ -192,20 +177,10 @@ class Window(QMainWindow):
 
 
 
-    '''def browse_and_set_path(self):
-        try :
-            response = PyQt5.QtWidgets.QFileDialog.getOpenFileName(parent=self,caption='Open Gfile',directory = r'D:\\', filter=('Guerilla File (*.gproject)'))
-            print(response)
-            response2 =  PyQt5.QtWidgets.QFileDialog.getExistingDirectory(parent=self,caption='Open Directory',directory = r'D:\\')
-            print(response2)
-        except :
-            print('error')
-            pass'''
-
-
 
 if __name__ == '__main__' :
     app = QApplication(sys.argv)
     win = Window()
     win.show()
     sys.exit(app.exec_())
+

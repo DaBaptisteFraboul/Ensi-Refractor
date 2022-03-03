@@ -1,7 +1,7 @@
 import os
 import pathlib
 import shutil
-
+import re
 
 def print_file(file):
 
@@ -10,10 +10,55 @@ def print_file(file):
     print(lines)
     f.close()
 
-"""
+
+def read_file(file, oldpath, newpath) :
+    new_content = []
+    with open(file, 'r+') as f :
+        line_content = f.readlines()
+        for line in line_content :
+            line.replace(oldpath, newpath)
+            new_content.append(line)
+    return new_content
 
 
-"""
+def do_backup_file(file) :
+    '''
+
+    '''
+    backup_path = re.split(r',|/|\\|\\\\', file)
+    for element in backup_path :
+        if element == '' :
+            backup_path.remove(element)
+    filename = backup_path[-1]
+    filename= filename.split('.')
+    filename[0] += '_EnsiRefractorBackup'
+    filename = filename[0] + '.' + filename[1]
+    backup_path[-1] = filename
+    newpath = backup_path[0]
+    for element in backup_path :
+        if element == backup_path[0] :
+            pass
+        else :
+            newpath += '/' + element
+    print(file)
+    print(newpath)
+    shutil.copyfile(file, newpath)
+    return newpath
+
+
+def write_new_file(path, data) :
+    try :
+        with open(path, 'w+') as f :
+            for lines in data :
+                f.writelines(lines)
+        return True
+    except :
+        return False
+
+
+
+
+do_backup_file(r'D:\\E4\\PixarCabin_Fraboul_Baptiste\\shots\\jour\\My_guerilla_project.gproject')
 def replace_element_in_content( content , oldpath, newpath):
     file_lines = content.readlines()
     print(len(file_lines))
@@ -67,6 +112,8 @@ def Do_backup(refracted_dir):
     if os.path.exists(backup_path) :
         shutil.rmtree(backup_path)
     shutil.copytree(refracted_dir,backup_path)
+
+
 
 
 def edit_gproject_in_dir(dir, oldpath, newpath) :
