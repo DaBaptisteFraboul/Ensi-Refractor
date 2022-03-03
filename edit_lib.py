@@ -16,7 +16,7 @@ def read_file(file, oldpath, newpath) :
     with open(file, 'r+') as f :
         line_content = f.readlines()
         for line in line_content :
-            line.replace(oldpath, newpath)
+            line = line.replace(oldpath, newpath)
             new_content.append(line)
     return new_content
 
@@ -55,10 +55,6 @@ def write_new_file(path, data) :
     except :
         return False
 
-
-
-
-do_backup_file(r'D:\\E4\\PixarCabin_Fraboul_Baptiste\\shots\\jour\\My_guerilla_project.gproject')
 def replace_element_in_content( content , oldpath, newpath):
     file_lines = content.readlines()
     print(len(file_lines))
@@ -77,10 +73,12 @@ def edit_file(file_path, oldpath, newpath):
         for line in file_lines:
             if line.find(oldpath) != -1:
                 line = line.replace(oldpath, newpath)
+                print(line)
             change.append(line)
     f.close()
     with open(file_path, 'w+') as f2 :
         f2.writelines(change)
+    f2.close()
 
 def is_directory(path):
     if path.find('.') == -1 :
@@ -108,15 +106,16 @@ def is_gproject(path):
 
 
 def Do_backup(refracted_dir):
-    backup_path = refracted_dir + '/Refractor_Backup'
+    refracted_dir_parent = os.dirname(refracted_dir)
+    backup_path = refracted_dir_parent + '_Refractor_Backup'
     if os.path.exists(backup_path) :
         shutil.rmtree(backup_path)
     shutil.copytree(refracted_dir,backup_path)
 
+    return backup_path
 
 
-
-def edit_gproject_in_dir(dir, oldpath, newpath) :
+def read_then_edit_gproject_in_dir(dir, oldpath, newpath) :
     '''
     Use for directory refracting
     '''
@@ -124,7 +123,6 @@ def edit_gproject_in_dir(dir, oldpath, newpath) :
     print("edit_project_in_dir")
 
     if os.path.exists(dir) :
-
         for path, subdirs, files in os.walk(dir) :
             for name in files:
                 checkfile = pathlib.PurePath(path, name)
@@ -132,26 +130,34 @@ def edit_gproject_in_dir(dir, oldpath, newpath) :
                     pass
                 else :
                     if checkfile.suffix == '.gproject' :
-                        edit_file(checkfile, oldpath, newpath)
-                        print_file(checkfile)
+                        new_content = read_file(checkfile, oldpath, newpath)
+                        try :
+                            write_new_file(checkfile, new_content)
+                            return True
+                        except :
+                            print('Error trying to write file: ', checkfile)
+                            return False
+                    else :
+                        pass
 
 
 def edit_gproject_standalone(file_path, oldpath, newpath) :
 
     print("edit standalone file")
-    if os.path.exists(file_path) :
+    if os.path.exists(file_path):
         edit_file(file_path, oldpath, newpath)
     print_file(file_path)
 
 
 
 class Modification:
-    def __init__(self, Directory, OldPath, NewPath):
-        self.Directory = Directory
-        self.OldPath = OldPath
-        self.NewPath = NewPath
 
-    def get_modification_infos(self):
+    def __init__(self, directory, old_path, new_path):
+        self.Directory = directory
+        self.OldPath = old_path
+        self.NewPath = new_path
+
+    def get_modification_info(self):
         return self.Directory, self.OldPath, self.NewPath
 
     def add_to_log(self, log):

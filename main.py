@@ -98,6 +98,16 @@ class Window(QMainWindow):
         self.RefractButton.setText('Refract Paths')
         self.RefractButton.move(125,205)
 
+        self.KeepBackupPopUp = PyQt5.QtWidgets.QMessageBox(self)
+        self.KeepBackupPopUp.setText("Do you want to delete backup")
+        self.KeepBackupPopUp.setWindowTitle('Refraction done')
+        self.KeepBackupPopUp.setIcon(PyQt5.QtWidgets.QMessageBox.Question)
+        self.KeepBackupPopUp.setStandardButtons(PyQt5.QtWidgets.QMessageBox.Yes | PyQt5.QtWidgets.QMessageBox.No)
+        rest = self.KeepBackupPopUp.exec_()
+        print(rest)
+
+
+
     def connections(self):
         pass
 
@@ -117,21 +127,64 @@ class Window(QMainWindow):
         old_path = self.OldPathInput.text()
         new_path = self.NewPathInput.text()
 
-        new_content = edit_lib.read_file(file_path,old_path,new_path)
-        backup_path = edit_lib.do_backup_file(file_path)
-        no_problem = edit_lib.write_new_file(file_path, new_content)
+        if os.path.exists(file_path) and edit_lib.not_on_C_disk(file_path):
+            if not is_folder :
+                new_content = edit_lib.read_file(file_path,old_path,new_path)
+                backup_path = edit_lib.do_backup_file(file_path)
+                no_problem = edit_lib.write_new_file(file_path, new_content)
 
-        if no_problem :
-            # prompt 'Do you want to keep backupfile'
-            user_answer = True
-            if user_answer :
-                return
-            else :
-                shutil.rmtree(backup_path)
+                if no_problem :
+                    user_answer = self.KeepBackupPopUp.exec_()
+                    print(user_answer)
+                    if user_answer == 65536:
+                        print('keeping backup')
+                        return
+                    if user_answer == 16384 :
+                        print('deleting backup')
+                        os.remove(backup_path)
+                else :
+                    print('Something went wrong')
+                    try :
+                        shutil.copy(backup_path, file_path)
+                        os.remove(backup_path)
+                    except :
+                        print('something wen wrong with delete')
+            if is_folder :
+                backup_path = edit_lib.Do_backup(file_path)
+                no_problem = edit_lib.read_then_edit_gproject_in_dir(file_path, old_path, new_path)
+                if no_problem :
+                    user_answer = self.KeepBackupPopUp.exec_()
+                    print(user_answer)
+                    if user_answer == 65536:
+                        print('keeping backup')
+                        return
+                    if user_answer == 16384:
+                        print('deleting backup')
+                        shutil.rmtree(backup_path)
+                else :
+                    print('Something went wrong')
+                    try:
+                        shutil.copy(backup_path, file_path)
+                        shutil.rmtree(backup_path)
+                    except:
+                        print('something wen wrong with delete')
+
+                # Do directory backup
+                # try :
+                # Loop over gproject files in directory
+                # For each grpoject apply is not folder refraction
+                # keep backup ?
+                #   delete backup
+                #   keep backup
+                # except :
+                # restaure tree
+                # delete backup
+                print("functionality WIP /available soon")
+                pass
+
+
         else :
-            print('Something went wrong')
-            shutil.copy(backup_path, file_path)
-
+            print('File or directory doesn\'t exist')
 
 
 
