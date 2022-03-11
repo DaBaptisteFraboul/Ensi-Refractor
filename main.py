@@ -1,5 +1,4 @@
 import shutil
-
 import PyQt5
 from PyQt5.QtWidgets import QApplication, QMainWindow
 import PyQt5.QtGui, PyQt5.QtCore
@@ -15,14 +14,12 @@ class Window(QMainWindow):
         self.UiComponents()
         self.events()
 
-
-
     def UiComponents(self):
         #icon = PyQt5.QtGui.QIcon('')
         #self.setWindowIcon(icon)
-        self.setGeometry(20, 20, 560, 512)
+        self.setGeometry(20, 20, 512, 512)
         self.setWindowTitle('ENSI Path Refractor')
-
+        self.setFixedSize(580,512)
         self.DirectoryLabel = PyQt5.QtWidgets.QLabel(self)
         self.DirectoryLabel.setText('Directory or file to refract')
         self.DirectoryLabel.adjustSize()
@@ -94,18 +91,16 @@ class Window(QMainWindow):
         self.CheckMark.setLayoutDirection(PyQt5.QtCore.Qt.RightToLeft)
 
         self.RefractButton = PyQt5.QtWidgets.QPushButton(self)
-        self.RefractButton.setFixedSize(200,150)
+        self.RefractButton.setFixedSize(200,200)
         self.RefractButton.setText('Refract Paths')
-        self.RefractButton.move(125,205)
+        self.RefractButton.move(156,256)
+        self.RefractButton.setStyleSheet("background-color: #cc021d")
 
         self.KeepBackupPopUp = PyQt5.QtWidgets.QMessageBox(self)
         self.KeepBackupPopUp.setText("Do you want to delete backup")
         self.KeepBackupPopUp.setWindowTitle('Refraction done')
         self.KeepBackupPopUp.setIcon(PyQt5.QtWidgets.QMessageBox.Question)
         self.KeepBackupPopUp.setStandardButtons(PyQt5.QtWidgets.QMessageBox.Yes | PyQt5.QtWidgets.QMessageBox.No)
-        rest = self.KeepBackupPopUp.exec_()
-        print(rest)
-
 
 
     def connections(self):
@@ -118,17 +113,14 @@ class Window(QMainWindow):
         self.RefractButton.clicked.connect(self.Do_refraction)
 
     def Do_refraction(self) :
-        if self.File_input.text().find('.gproject') != -1:
-            is_folder = False
-        else:
-            is_folder_ = True
+
 
         file_path = self.File_input.text()
         old_path = self.OldPathInput.text()
         new_path = self.NewPathInput.text()
 
         if os.path.exists(file_path) and edit_lib.not_on_C_disk(file_path):
-            if not is_folder :
+            if self.File_input.text().find('.gproject') != -1:
                 new_content = edit_lib.read_file(file_path,old_path,new_path)
                 backup_path = edit_lib.do_backup_file(file_path)
                 no_problem = edit_lib.write_new_file(file_path, new_content)
@@ -149,7 +141,7 @@ class Window(QMainWindow):
                         os.remove(backup_path)
                     except :
                         print('something wen wrong with delete')
-            if is_folder :
+            if self.File_input.text().find('.gproject') == -1:
                 backup_path = edit_lib.Do_backup(file_path)
                 no_problem = edit_lib.read_then_edit_gproject_in_dir(file_path, old_path, new_path)
                 if no_problem :
@@ -168,23 +160,8 @@ class Window(QMainWindow):
                         shutil.rmtree(backup_path)
                     except:
                         print('something wen wrong with delete')
-
-                # Do directory backup
-                # try :
-                # Loop over gproject files in directory
-                # For each grpoject apply is not folder refraction
-                # keep backup ?
-                #   delete backup
-                #   keep backup
-                # except :
-                # restaure tree
-                # delete backup
-                print("functionality WIP /available soon")
-                pass
-
-
         else :
-            print('File or directory doesn\'t exist')
+            print(r'File or directory doesn\'t exist')
 
 
 
@@ -194,7 +171,8 @@ class Window(QMainWindow):
             response = PyQt5.QtWidgets.QFileDialog.getExistingDirectory(parent=self, caption='Select directory to refract',
                                                                          directory=r'D:\\')
         else :
-            response = PyQt5.QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select Guerilla file to refract', directory=r'D:\\',
+            response = PyQt5.QtWidgets.QFileDialog.getOpenFileName(parent=self, caption='Select Guerilla file to refract',
+                                                                   directory=r'D:\\',
                                                                    filter=('Guerilla File (*.gproject)'))
         if bool(response) == False or response == ("",""):
             print('Empty')
@@ -203,6 +181,7 @@ class Window(QMainWindow):
                 input.setText(response)
             except :
                 input.setText(response[0])
+
 
     def variables(self):
         self.log = []

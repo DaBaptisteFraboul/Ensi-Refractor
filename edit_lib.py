@@ -3,6 +3,8 @@ import pathlib
 import shutil
 import re
 
+
+
 def print_file(file):
 
     f = open(file, 'r')
@@ -106,7 +108,7 @@ def is_gproject(path):
 
 
 def Do_backup(refracted_dir):
-    refracted_dir_parent = os.dirname(refracted_dir)
+    refracted_dir_parent = os.path.dirname(refracted_dir)
     backup_path = refracted_dir_parent + '_Refractor_Backup'
     if os.path.exists(backup_path) :
         shutil.rmtree(backup_path)
